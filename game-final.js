@@ -1,4 +1,13 @@
 /**
+ * SUMMARY: Single-file game implementation that owns data, rendering, UI wiring,
+ * and gameplay state for the Canvas prototype. GLOBALS: `GameState`,
+ * `RECORDS_DATA`, `CALLERS_DATA`, `BOOTH_OBJECTS`, `canvas`, `ctx`, `canvasScale`.
+ * ARCH ISSUES: UI + logic + rendering are tightly coupled via direct DOM queries;
+ * implicit state is spread across `GameState.phase`, timer callbacks,
+ * `caller.called` mutations, and Sets. Rendering uses random each frame, and
+ * core systems rely on shared mutable globals with no module boundaries.
+ */
+/**
  * THE LAST BROADCAST
  * Clean, object-oriented game architecture
  * Following strict UI/UX and retro design principles

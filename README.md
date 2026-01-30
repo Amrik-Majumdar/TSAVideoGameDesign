@@ -1,3 +1,8 @@
+<!--
+SUMMARY: Design/vision document describing gameplay, UX rules, and constraints.
+ARCH ISSUES: Acts as source of truth but implementation is currently monolithic;
+expect mismatches until code is decomposed into data, rendering, and UI modules.
+-->
 # The Last Broadcast
 
 A retro-by-design, UI/UX-first narrative game about empathy, memory, and scarcity.
