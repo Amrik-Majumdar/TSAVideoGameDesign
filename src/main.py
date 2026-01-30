@@ -6,12 +6,16 @@ It contains NO game logic - only initialization and coordination.
 
 Game flow:
 1. Initialize pygame, load assets
-2. Create GameState
-3. Main loop:
+2. Create GameState (with optional debug mode)
+3. Fixed-step main loop:
+   - Accumulate delta time
+   - Update systems at fixed timestep
    - Handle input events
-   - Update systems
    - Render UI based on current mode
 4. Cleanup and exit
+
+FIXED-STEP LOOP: Accumulates delta time and updates at consistent intervals
+DEBUG MODE: Enable with --debug flag to see GameState snapshots
 """
 
 import pygame
@@ -33,6 +37,11 @@ from src.ui.hud import render_hud
 from src.ui.phone import render_call_mode
 from src.ui.record_shelf import render_record_select_mode
 from src.ui.game_over import render_game_over_mode
+
+
+# Fixed timestep configuration
+FIXED_TIMESTEP = 1.0 / 60.0  # 60 updates per second
+MAX_FRAME_TIME = 0.25  # Cap delta time to prevent spiral of death
 
 
 def initialize_pygame():
@@ -69,20 +78,31 @@ def handle_input(event: pygame.event.Event, state: GameState) -> bool:
     
     Args:
         event: Pygame event to process
-        state: Current game state
+        state: Current game state (modified in place)
         
     Returns:
         bool: True to continue running, False to quit
+        
+    NO GLOBALS - All state mutations happen through the state parameter.
     """
     if event.type == pygame.QUIT:
         return False
     
     if event.type == pygame.KEYDOWN:
+        # Debug mode toggle (F3)
+        if event.key == pygame.K_F3:
+            state.debug_mode = not state.debug_mode
+            print(f"Debug mode: {'ON' if state.debug_mode else 'OFF'}")
+            if state.debug_mode:
+                state.print_snapshot("DEBUG MODE ENABLED")
+            return True
+        
         # Handle input based on current mode
         if state.mode == "CALL":
             if event.key == pygame.K_RETURN:
                 # Move to record selection
                 state.mode = "RECORD_SELECT"
+                state.print_snapshot("Entering record selection")
         
         elif state.mode == "RECORD_SELECT":
             # Check for number key press (1-9)
@@ -130,32 +150,65 @@ def render(screen: pygame.Surface, state: GameState, fonts: dict, background: py
 
 def main():
     """
-    Main game loop.
+    Main game loop with fixed timestep.
     
-    Initializes the game, runs the main loop, and handles cleanup.
+    Initializes the game, runs the fixed-step main loop, and handles cleanup.
+    
+    Features:
+    - Fixed timestep updates (60 Hz)
+    - Delta time accumulation
+    - Frame time capping to prevent spiral of death
+    - Debug mode support (toggle with F3 or --debug flag)
+    
+    NO GLOBALS - All state is contained in GameState object.
     """
+    # Check for debug mode flag
+    debug_mode = "--debug" in sys.argv
+    
     # Initialize
     screen, clock, fonts, background = initialize_pygame()
     audio.initialize_audio()
     
-    # Create game state
-    state = GameState()
+    # Create game state with debug mode
+    state = GameState(debug_mode=debug_mode)
+    
+    if debug_mode:
+        print("\n" + "="*60)
+        print("DEBUG MODE ENABLED")
+        print("Press F3 to toggle debug mode during gameplay")
+        print("="*60 + "\n")
+        state.print_snapshot("GAME START")
+    
+    # Fixed timestep accumulator
+    accumulator = 0.0
     
     # Main loop
     running = True
     while running:
-        # Calculate delta time
-        delta_time = clock.tick(FPS) / 1000.0
+        # Calculate frame delta time
+        frame_time = clock.tick(FPS) / 1000.0
         
-        # Handle events
+        # Cap frame time to prevent spiral of death
+        if frame_time > MAX_FRAME_TIME:
+            frame_time = MAX_FRAME_TIME
+        
+        # Accumulate time for fixed updates
+        accumulator += frame_time
+        
+        # Fixed timestep updates
+        while accumulator >= FIXED_TIMESTEP:
+            # Update systems at fixed rate
+            time.update_time(state, FIXED_TIMESTEP)
+            accumulator -= FIXED_TIMESTEP
+        
+        # Handle events (variable rate, but that's fine for input)
         for event in pygame.event.get():
             if not handle_input(event, state):
                 running = False
+                if state.debug_mode:
+                    state.print_snapshot("GAME EXIT")
         
-        # Update systems
-        time.update_time(state, delta_time)
-        
-        # Render
+        # Render (variable rate, interpolation could go here)
         render(screen, state, fonts, background)
         pygame.display.flip()
     

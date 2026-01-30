@@ -17,7 +17,7 @@ from src.config import (
 
 def render_hud(screen: pygame.Surface, state: GameState, font: pygame.font.Font) -> None:
     """
-    Render the main HUD showing hour, listeners, and transmitter.
+    Render the main HUD showing hour, listeners, transmitter, and score.
     
     Args:
         screen: Pygame surface to render to
@@ -40,3 +40,7 @@ def render_hud(screen: pygame.Surface, state: GameState, font: pygame.font.Font)
     
     transmitter_text = font.render(f"TRANSMITTER: {state.transmitter}%", True, CYAN)
     screen.blit(transmitter_text, (text_x, text_y + 50))
+    
+    # Add score display in corner
+    score_text = font.render(f"SCORE: {state.score}", True, CYAN)
+    screen.blit(score_text, (text_x + 140, text_y))

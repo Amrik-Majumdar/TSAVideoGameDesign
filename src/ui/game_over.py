@@ -34,18 +34,24 @@ def render_game_over_mode(screen: pygame.Surface, state: GameState,
     screen.blit(title_text, (WIDTH // 2 - 80, 40))
     
     # Final stats
+    score_text = small_font.render(f"Final Score: {state.score}", True, MAGENTA)
+    screen.blit(score_text, (100, 100))
+    
     listeners_text = small_font.render(f"Final Listeners: {state.listeners}", True, CYAN)
-    screen.blit(listeners_text, (100, 120))
+    screen.blit(listeners_text, (100, 130))
     
     perfect_count_text = small_font.render(
         f"Perfect Moments: {len(state.perfect_moments)}", 
         True, 
         CYAN
     )
-    screen.blit(perfect_count_text, (100, 150))
+    screen.blit(perfect_count_text, (100, 160))
+    
+    records_text = small_font.render(f"Records Played: {state.records_used}", True, CYAN)
+    screen.blit(records_text, (100, 190))
     
     # Memory wall
-    y = 220
+    y = 240
     memory_title = small_font.render("MEMORY WALL", True, MAGENTA)
     screen.blit(memory_title, (100, y))
     y += 30
