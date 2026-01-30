@@ -28,7 +28,8 @@ from src.config import WIDTH, HEIGHT, FPS
 from src.game_state import GameState
 
 # Import systems
-from src.systems import audio, time
+from src.systems import audio
+from src.systems.time import TimeSystem
 from src.systems.records import handle_record_selection
 
 # Import UI modules
@@ -171,6 +172,7 @@ def main():
     
     # Create game state with debug mode
     state = GameState(debug_mode=debug_mode)
+    time_system = TimeSystem(total_night_length_seconds=state.night_length_seconds)
     
     if debug_mode:
         print("\n" + "="*60)
@@ -198,7 +200,7 @@ def main():
         # Fixed timestep updates
         while accumulator >= FIXED_TIMESTEP:
             # Update systems at fixed rate
-            time.update_time(state, FIXED_TIMESTEP)
+            time_system.update(state, FIXED_TIMESTEP)
             accumulator -= FIXED_TIMESTEP
         
         # Handle events (variable rate, but that's fine for input)

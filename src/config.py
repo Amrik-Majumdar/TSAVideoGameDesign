@@ -35,6 +35,22 @@ MAX_HOURS = 12
 STARTING_LISTENERS = 5
 STARTING_TRANSMITTER = 100
 
+# ==============================
+# NIGHT PROGRESSION (SECONDS)
+# ==============================
+# Total duration of the night-to-sunrise progression (configurable)
+NIGHT_LENGTH_SECONDS = 12 * 60  # 12 minutes by default
+
+# Phase thresholds as normalized progress (0.0 - 1.0)
+# early_night: 0.0 - 0.45
+# deep_night: 0.45 - 0.80
+# pre_sunrise: 0.80 - 1.0
+NIGHT_PHASE_THRESHOLDS = {
+	"early_night": 0.0,
+	"deep_night": 0.45,
+	"pre_sunrise": 0.80,
+}
+
 TRANSMITTER_DRAIN_PER_HOUR = 10
 LISTENERS_GAIN_ON_MATCH = 2
 LISTENERS_LOSS_ON_MISMATCH = 1

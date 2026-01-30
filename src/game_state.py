@@ -21,7 +21,8 @@ from typing import List, Dict, Optional
 from src.config import (
     STARTING_LISTENERS,
     STARTING_TRANSMITTER,
-    MAX_HOURS
+    MAX_HOURS,
+    NIGHT_LENGTH_SECONDS
 )
 
 
@@ -65,7 +66,16 @@ class GameState:
     def __init__(self, debug_mode: bool = False):
         # ===== TIME PROGRESSION =====
         self.hour: int = 1
-        self.time_progress: float = 0.0  # Accumulated time within current hour (0.0 to 1.0)
+        self.time_progress: float = 0.0  # Accumulated night progress (0.0 to 1.0)
+        self.night_elapsed: float = 0.0  # Elapsed seconds since night start
+        self.night_length_seconds: float = NIGHT_LENGTH_SECONDS
+        self.night_phase: str = "early_night"
+        self.phase_flags: Dict[str, bool] = {
+            "early_night": True,
+            "deep_night": False,
+            "pre_sunrise": False,
+        }
+        self.phase_events: List[str] = []
         
         # ===== TRANSMITTER HEALTH =====
         self.transmitter: int = STARTING_TRANSMITTER  # Also called transmitter_health
